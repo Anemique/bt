@@ -4,6 +4,7 @@ import json
 import websocket
 import time
 import pandas as pd
+from datetime import datetime
 from binance.websockets import BinanceSocketManager
 
 import creds                # Конфиг
@@ -46,10 +47,10 @@ def on_message(ws, message):
         resistance = df['High'].max()
         levels = True
         sell_price = resistance - ((resistance - support) / 2)
-        
+
 def handle_message(msg):
-    global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low
-    global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order
+    global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag
+    global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter
     global initial_balance, profit, balance_change
 
     if msg['e'] == 'error':
@@ -65,35 +66,58 @@ def handle_message(msg):
 
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance:
+                    if btc_price <= sell_price - 3 and btc_price > support and btc_price < resistance:
                         sell_price_order = btc_price
-                        sell_quantity = 0.01500
+                        sell_quantity = math.floor(balance / sell_price_order * 10**3) / 10**3
                         buy_balance = sell_quantity * sell_price_order
                         balance = round(balance - buy_balance, 2)
+
                         order = orders.orderBuy(sell_quantity, sell_price_order, order, client)
                         buy_order_placed = True
+
                         telegramSend('buy_placing', {'sell_price': sell_price_order, 'sell_quantity': sell_quantity, 'buy_balance' : buy_balance})
                 else:
-                    if orders.checkOrder(client, order['orderId']):
-                        bought = True
-                        buy_order_placed = False
+                    if check_buy_order_counter < 600:
+                        check_buy_order_counter = check_buy_order_counter + 1
+                        if orders.checkOrder(client, order['orderId']):
+                            bought = True
+                            buy_order_placed = False
+                            check_buy_order_counter = 0
 
-                        telegramSend('buy_filled')
+                            telegramSend('buy_filled')
 
-                        order = orders.orderSell(sell_quantity, sell_price_order + 1, order, client)
-                        sell_order_placed = True
+                            order = orders.orderSell(sell_quantity, sell_price_order + 1, order, client)
+                            sell_order_placed = True
 
-                        telegramSend('sell_placing', {'sell_price': sell_price_order + 1, 'sell_quantity': sell_quantity})
+                            telegramSend('sell_placing', {'sell_price': sell_price_order + 1, 'sell_quantity': sell_quantity})
+                    else:
+                        if orders.cancelOrder(client, order['orderId']):
+                            check_buy_order_counter = 0
+                            buy_order_placed = False
+                            telegramSend('order_canceled')
             else:
-                if orders.checkOrder(client, order['orderId']):
-                    sell_order_placed = False
-                    bought = False
+                if check_sell_order_counter < 600 and check_sell_order_flag:
+                    check_sell_order_counter = check_sell_order_counter + 1
+                    if orders.checkOrder(client, order['orderId']):
+                        sell_order_placed = False
+                        bought = False
+                        check_sell_order_counter = 0
 
-                    profit = round((buy_balance / sell_price_order) * (sell_price_order + 1) - buy_balance, 2)
-                    balance = balance + round(buy_balance + profit, 2)
-                    balance_change = round(balance * 84 - initial_balance * 84, 2)
+                        profit = round((buy_balance / sell_price_order) * (sell_price_order + 1) - buy_balance, 2)
+                        balance = balance + round(buy_balance + profit, 2)
+                        balance_change = round(balance * 92 - initial_balance * 92, 2)
 
-                    telegramSend('sell_filled', {'profit': profit, 'balance': '', 'balance_change': balance_change})
+                        telegramSend('sell_filled', {'profit': profit, 'balance': '', 'balance_change': balance_change})
+                else:
+                    if check_sell_order_flag:
+                        check_sell_order_flag = False
+                        print('ждем 10 мин')
+
+                    check_sell_order_counter = check_sell_order_counter - 1
+                    if check_sell_order_counter == 0:
+                        check_sell_order_counter = 599
+                        check_sell_order_flag = True
+                        print('Дождались')
 
 conn_key = bm.start_symbol_ticker_socket(creds.symbol, handle_message)
 

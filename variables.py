@@ -9,7 +9,7 @@ buying_price = 0
 sell_price = 32000
 sell_price_order = 31000
 
-initial_balance = 473
+initial_balance = 465
 balance = initial_balance
 buy_balance = 0
 balance_change = 0
@@ -24,3 +24,8 @@ highs = []
 lows = []
 
 sup_counter = 0
+
+check_sell_order_counter = 0
+check_sell_order_flag = True
+
+check_buy_order_counter = 0
