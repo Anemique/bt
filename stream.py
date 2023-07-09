@@ -4,7 +4,6 @@ import json
 import websocket
 import time
 import pandas as pd
-from datetime import datetime
 from binance.websockets import BinanceSocketManager
 
 import creds                # Конфиг
@@ -66,9 +65,9 @@ def handle_message(msg):
 
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price - 3 and btc_price > support and btc_price < resistance:
+                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance:
                         sell_price_order = btc_price
-                        sell_quantity = math.floor(balance / sell_price_order * 10**3) / 10**3
+                        sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order
                         balance = round(balance - buy_balance, 2)
 
@@ -105,19 +104,17 @@ def handle_message(msg):
 
                         profit = round((buy_balance / sell_price_order) * (sell_price_order + 1) - buy_balance, 2)
                         balance = balance + round(buy_balance + profit, 2)
-                        balance_change = round(balance * 92 - initial_balance * 92, 2)
+                        balance_change = round(balance * 91 - initial_balance * 91, 2)
 
                         telegramSend('sell_filled', {'profit': profit, 'balance': '', 'balance_change': balance_change})
                 else:
                     if check_sell_order_flag:
                         check_sell_order_flag = False
-                        print('ждем 10 мин')
 
                     check_sell_order_counter = check_sell_order_counter - 1
                     if check_sell_order_counter == 0:
                         check_sell_order_counter = 599
                         check_sell_order_flag = True
-                        print('Дождались')
 
 conn_key = bm.start_symbol_ticker_socket(creds.symbol, handle_message)
 
