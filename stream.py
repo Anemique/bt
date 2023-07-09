@@ -100,6 +100,7 @@ def handle_message(msg):
                     if orders.checkOrder(client, order['orderId']):
                         sell_order_placed = False
                         bought = False
+                        check_sell_order_flag = True
                         check_sell_order_counter = 0
 
                         profit = round((buy_balance / sell_price_order) * (sell_price_order + 1) - buy_balance, 2)
