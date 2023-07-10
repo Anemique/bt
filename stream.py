@@ -92,6 +92,7 @@ def handle_message(msg):
                     else:
                         if orders.cancelOrder(client, order['orderId']):
                             check_buy_order_counter = 0
+                            balance = round(balance + buy_balance, 2)
                             buy_order_placed = False
                             telegramSend('order_canceled')
             else:
