@@ -13,7 +13,7 @@ def messageResolver(type, args):
   elif type == 'sell_placing':
     return ' \n' + 'Выставлен ордер на продажу' + ' \n' + 'Цена: ' + str(args['sell_price']) + ' \n' + 'Количество: ' + str(args['sell_quantity']) + ' \n'
   elif type == 'sell_filled':
-    return ' \n' + 'Ордер на продажу выполнен' + ' \n' + 'Профит: ' + str(round(args['profit'] * 84, 2)) + ' руб' + ' \n' + ' \n' + 'Изменение: ' + str(args['balance_change']) + ' руб' + ' \n' + '----------------'
+    return ' \n' + 'Ордер на продажу выполнен' + ' \n' + 'Профит: ' + str(round(args['profit'] * 84, 2)) + ' руб' + ' \n' + 'Изменение: ' + str(args['balance_change']) + ' руб' + ' \n' + '----------------'
   elif type == 'order_canceled':
     return ' \n' + 'Ордер на покупку отменен'
 

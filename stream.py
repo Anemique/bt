@@ -95,7 +95,7 @@ def handle_message(msg):
                             buy_order_placed = False
                             telegramSend('order_canceled')
             else:
-                if check_sell_order_counter < 600 and check_sell_order_flag:
+                if check_sell_order_counter < 300 and check_sell_order_flag:
                     check_sell_order_counter = check_sell_order_counter + 1
                     if orders.checkOrder(client, order['orderId']):
                         sell_order_placed = False
@@ -114,7 +114,7 @@ def handle_message(msg):
 
                     check_sell_order_counter = check_sell_order_counter - 1
                     if check_sell_order_counter == 0:
-                        check_sell_order_counter = 599
+                        check_sell_order_counter = 299
                         check_sell_order_flag = True
 
 conn_key = bm.start_symbol_ticker_socket(creds.symbol, handle_message)
