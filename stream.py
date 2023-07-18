@@ -9,6 +9,7 @@ from binance.websockets import BinanceSocketManager
 import creds                # Конфиг
 import orders               # Выставление ордеров
 import init                 # Инстанс клиента
+import technicals           # Техническая дребедень
 from telegramApi import *   # Телеграм
 from variables import *     # Переменные
 
@@ -50,22 +51,20 @@ def on_message(ws, message):
 def handle_message(msg):
     global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag
     global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter
-    global initial_balance, profit, balance_change
+    global initial_balance, profit, balance_change, is_side, is_side_counter
 
     if msg['e'] == 'error':
         print(f"Error: {msg['m']}")
     else:
         btc_price = float(msg['c'])
-
         if levels:
-            sup_counter = sup_counter + 1
-            if sup_counter > 60*5 and not bought and not buy_order_placed:
-                levels = False
-                sup_counter = 0
-
+            is_side_counter -= 1
+            if is_side_counter == 0:
+                is_side = technicals.isSide()
+                is_side_counter = 60*15
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance:
+                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side:
                         sell_price_order = btc_price
                         sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order

@@ -29,3 +29,6 @@ check_sell_order_counter = 0
 check_sell_order_flag = True
 
 check_buy_order_counter = 0
+
+is_side = False
+is_side_counter = 1
