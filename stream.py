@@ -60,7 +60,7 @@ def handle_message(msg):
         if levels:
             rsi_counter -= 1
             if rsi_counter == 0:
-                rsi = technicals.rsi(creads.symbolRsi)
+                rsi = technicals.rsi(creds.symbolRsi)
                 rsi_counter = 60*60
             is_side_counter -= 1
             if is_side_counter == 0:
