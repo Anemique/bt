@@ -70,7 +70,10 @@ def calculate_rsi(candles):
     # Вычисляем RSI
     rsi = 100 - (100 / (1 + rs))
 
-    return rsi
+    if(rsi < 50):
+        return True
+    else:
+        return False
 
 def rsi(symbol):
     # Создаем экземпляр объекта биржи
@@ -88,9 +91,6 @@ def rsi(symbol):
 
         # Получаем RSI
         rsi = calculate_rsi(candles)
-
-        # Выводим результат
-        print(f"RSI: {rsi}")
 
     except Exception as e:
         print(f"An error occurred: {e}")

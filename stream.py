@@ -68,7 +68,7 @@ def handle_message(msg):
                 is_side_counter = 60*15
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side and rsi < 50:
+                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side and rsi:
                         sell_price_order = btc_price
                         sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order
