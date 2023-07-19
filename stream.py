@@ -51,20 +51,24 @@ def on_message(ws, message):
 def handle_message(msg):
     global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag
     global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter
-    global initial_balance, profit, balance_change, is_side, is_side_counter
+    global initial_balance, profit, balance_change, is_side, is_side_counter, rsi, rsi_counter
 
     if msg['e'] == 'error':
         print(f"Error: {msg['m']}")
     else:
         btc_price = float(msg['c'])
         if levels:
+            rsi_counter -= 1
+            if rsi_counter == 0:
+                rsi = technicals.rsi(symbolRsi)
+                rsi_counter = 60*60
             is_side_counter -= 1
             if is_side_counter == 0:
                 is_side = technicals.isSide()
                 is_side_counter = 60*15
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side:
+                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side and rsi < 50:
                         sell_price_order = btc_price
                         sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order
