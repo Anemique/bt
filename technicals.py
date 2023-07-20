@@ -90,7 +90,7 @@ def rsi(symbol):
         last_close_price = candles[-1][4]
 
         # Получаем RSI
-        rsi = calculate_rsi(candles)
+        return calculate_rsi(candles)
 
     except Exception as e:
         print(f"An error occurred: {e}")
