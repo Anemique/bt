@@ -69,7 +69,7 @@ def calculate_rsi(candles):
 
     # Вычисляем RSI
     rsi = 100 - (100 / (1 + rs))
-
+    rsi = int(rsi)
     if(rsi < 50):
         return True
     else:

@@ -33,5 +33,5 @@ check_buy_order_counter = 0
 is_side = False
 is_side_counter = 1
 
-rsi = 51
+rsi = False
 rsi_counter = 1
