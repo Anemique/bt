@@ -88,10 +88,10 @@ def handle_message(msg):
 
                             telegramSend('buy_filled')
 
-                            order = orders.orderSell(sell_quantity, sell_price_order + 1, order, client)
+                            order = orders.orderSell(sell_quantity, sell_price_order + 15, order, client)
                             sell_order_placed = True
 
-                            telegramSend('sell_placing', {'sell_price': sell_price_order + 1, 'sell_quantity': sell_quantity})
+                            telegramSend('sell_placing', {'sell_price': sell_price_order + 15, 'sell_quantity': sell_quantity})
                     else:
                         if orders.cancelOrder(client, order['orderId']):
                             check_buy_order_counter = 0
@@ -107,7 +107,7 @@ def handle_message(msg):
                         check_sell_order_flag = True
                         check_sell_order_counter = 0
 
-                        profit = round((buy_balance / sell_price_order) * (sell_price_order + 1) - buy_balance, 2)
+                        profit = round((buy_balance / sell_price_order) * (sell_price_order + 15) - buy_balance, 2)
                         balance = balance + round(buy_balance + profit, 2)
                         balance_change = round(balance * 91 - initial_balance * 91, 2)
 
