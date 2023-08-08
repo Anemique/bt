@@ -9,6 +9,8 @@ buying_price = 0
 sell_price = 32000
 sell_price_order = 31000
 
+prev_price = 0
+
 initial_balance = 443
 balance = initial_balance
 buy_balance = 0

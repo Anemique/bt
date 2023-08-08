@@ -51,7 +51,7 @@ def on_message(ws, message):
 def handle_message(msg):
     global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag
     global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter
-    global initial_balance, profit, balance_change, is_side, is_side_counter, rsi, rsi_counter
+    global initial_balance, profit, balance_change, is_side, is_side_counter, rsi, rsi_counter, prev_price
 
     if msg['e'] == 'error':
         print(f"Error: {msg['m']}")
@@ -68,7 +68,7 @@ def handle_message(msg):
                 is_side_counter = 60*15
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side and rsi:
+                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side and rsi and prev_price < btc_price:
                         sell_price_order = btc_price
                         sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order
@@ -120,6 +120,7 @@ def handle_message(msg):
                     if check_sell_order_counter == 0:
                         check_sell_order_counter = 299
                         check_sell_order_flag = True
+        prev_price = btc_price
 
 conn_key = bm.start_symbol_ticker_socket(creds.symbol, handle_message)
 
