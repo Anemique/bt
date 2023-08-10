@@ -8,6 +8,10 @@ order = 0
 buying_price = 0
 sell_price = 32000
 sell_price_order = 31000
+sell_active_price = 30000
+when_stop_price = 30000
+is_stop = False
+stop_placing = False
 
 prev_price = 0
 

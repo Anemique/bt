@@ -51,7 +51,7 @@ def on_message(ws, message):
 def handle_message(msg):
     global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag
     global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter
-    global initial_balance, profit, balance_change, is_side, is_side_counter, rsi, rsi_counter, prev_price
+    global initial_balance, profit, balance_change, is_side, is_side_counter, rsi, rsi_counter, prev_price, sell_active_price, is_stop, stop_placing, when_stop_price
 
     if msg['e'] == 'error':
         print(f"Error: {msg['m']}")
@@ -88,6 +88,8 @@ def handle_message(msg):
 
                             telegramSend('buy_filled')
 
+                            sell_active_price = sell_price_order + 15
+
                             order = orders.orderSell(sell_quantity, sell_price_order + 15, order, client)
                             sell_order_placed = True
 
@@ -101,17 +103,35 @@ def handle_message(msg):
             else:
                 if check_sell_order_counter < 300 and check_sell_order_flag:
                     check_sell_order_counter = check_sell_order_counter + 1
-                    if orders.checkOrder(client, order['orderId']):
-                        sell_order_placed = False
-                        bought = False
-                        check_sell_order_flag = True
+                    if btc_price <= sell_active_price - 200 and not is_stop:
                         check_sell_order_counter = 0
+                        if orders.cancelOrder(client, order['orderId']):
+                            order = orders.orderSell(sell_quantity, btc_price, order, client)
+                            when_stop_price = btc_price - 15
+                            is_stop = True
+                            stop_placing = True
 
-                        profit = round((buy_balance / sell_price_order) * (sell_price_order + 15) - buy_balance, 2)
-                        balance = balance + round(buy_balance + profit, 2)
-                        balance_change = round(balance * 91 - initial_balance * 91, 2)
+                            telegramSend('sell_placing_stop', {'sell_price': btc_price, 'sell_quantity': sell_quantity})
+                    if not stop_placing:
+                        if orders.checkOrder(client, order['orderId']):
+                            sell_order_placed = False
+                            bought = False
+                            check_sell_order_flag = True
+                            check_sell_order_counter = 0
 
-                        telegramSend('sell_filled', {'profit': profit, 'balance': '', 'balance_change': balance_change})
+                            if is_stop:
+                                 profit = round((buy_balance / sell_price_order) * (when_stop_price + 15) - buy_balance, 2)
+                            else:
+                                profit = round((buy_balance / sell_price_order) * (sell_price_order + 15) - buy_balance, 2)
+                                
+                            balance = balance + round(buy_balance + profit, 2)
+                            balance_change = round(balance * 91 - initial_balance * 91, 2)
+
+                            if is_stop:
+                                is_stop = False
+                                telegramSend('sell_filled_stop', {'profit': profit, 'balance': '', 'balance_change': balance_change})
+                            else:
+                                telegramSend('sell_filled', {'profit': profit, 'balance': '', 'balance_change': balance_change})
                 else:
                     if check_sell_order_flag:
                         check_sell_order_flag = False
@@ -121,6 +141,8 @@ def handle_message(msg):
                         check_sell_order_counter = 299
                         check_sell_order_flag = True
         prev_price = btc_price
+        if stop_placing:
+            stop_placing = False
 
 conn_key = bm.start_symbol_ticker_socket(creds.symbol, handle_message)
 
