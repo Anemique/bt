@@ -88,12 +88,12 @@ def handle_message(msg):
 
                             telegramSend('buy_filled')
 
-                            sell_active_price = sell_price_order + 15
+                            sell_active_price = sell_price_order + 5
 
-                            order = orders.orderSell(sell_quantity, sell_price_order + 15, order, client)
+                            order = orders.orderSell(sell_quantity, sell_price_order + 5, order, client)
                             sell_order_placed = True
 
-                            telegramSend('sell_placing', {'sell_price': sell_price_order + 15, 'sell_quantity': sell_quantity})
+                            telegramSend('sell_placing', {'sell_price': sell_price_order + 5, 'sell_quantity': sell_quantity})
                     else:
                         if orders.cancelOrder(client, order['orderId']):
                             check_buy_order_counter = 0
@@ -103,11 +103,11 @@ def handle_message(msg):
             else:
                 if check_sell_order_counter < 300 and check_sell_order_flag:
                     check_sell_order_counter = check_sell_order_counter + 1
-                    if btc_price <= sell_active_price - 200 and not is_stop:
+                    if btc_price <= sell_active_price - 250 and not is_stop:
                         check_sell_order_counter = 0
                         if orders.cancelOrder(client, order['orderId']):
                             order = orders.orderSell(sell_quantity, btc_price, order, client)
-                            when_stop_price = btc_price - 15
+                            when_stop_price = btc_price - 5
                             is_stop = True
                             stop_placing = True
 
@@ -120,9 +120,9 @@ def handle_message(msg):
                             check_sell_order_counter = 0
 
                             if is_stop:
-                                 profit = round((buy_balance / sell_price_order) * (when_stop_price + 15) - buy_balance, 2)
+                                 profit = round((buy_balance / sell_price_order) * (when_stop_price + 5) - buy_balance, 2)
                             else:
-                                profit = round((buy_balance / sell_price_order) * (sell_price_order + 15) - buy_balance, 2)
+                                profit = round((buy_balance / sell_price_order) * (sell_price_order + 5) - buy_balance, 2)
                                 
                             balance = balance + round(buy_balance + profit, 2)
                             balance_change = round(balance * 91 - initial_balance * 91, 2)
