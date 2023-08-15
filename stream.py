@@ -68,7 +68,7 @@ def handle_message(msg):
                 is_side_counter = 60*15
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price - 3 and btc_price > support + 10 and btc_price < resistance and is_side and rsi and prev_price < btc_price:
+                    if btc_price <= sell_price and btc_price > support + 1 and btc_price < resistance and is_side and rsi and prev_price < btc_price:
                         sell_price_order = btc_price
                         sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order
@@ -103,7 +103,7 @@ def handle_message(msg):
             else:
                 if check_sell_order_counter < 300 and check_sell_order_flag:
                     check_sell_order_counter = check_sell_order_counter + 1
-                    if btc_price <= sell_active_price - 250 and not is_stop:
+                    if btc_price <= sell_active_price - 1250 and not is_stop:
                         check_sell_order_counter = 0
                         if orders.cancelOrder(client, order['orderId']):
                             order = orders.orderSell(sell_quantity, btc_price, order, client)
