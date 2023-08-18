@@ -49,7 +49,7 @@ def on_message(ws, message):
         sell_price = resistance - ((resistance - support) / 2)
 
 def handle_message(msg):
-    global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag
+    global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag, last_sell
     global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter
     global initial_balance, profit, balance_change, is_side, is_side_counter, rsi, rsi_counter, prev_price, sell_active_price, is_stop, stop_placing, when_stop_price
 
@@ -68,7 +68,7 @@ def handle_message(msg):
                 is_side_counter = 60*15
             if not bought:
                 if not buy_order_placed:
-                    if btc_price <= sell_price and btc_price > support + 1 and btc_price < resistance and is_side and rsi and prev_price < btc_price:
+                    if btc_price <= last_sell - 10 and btc_price <= sell_price and btc_price > support + 1 and btc_price < resistance and is_side and rsi and prev_price < btc_price:
                         sell_price_order = btc_price
                         sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order
@@ -88,12 +88,13 @@ def handle_message(msg):
 
                             telegramSend('buy_filled')
 
-                            sell_active_price = sell_price_order + 5
+                            sell_active_price = sell_price_order + 20
+                            last_sell = sell_price_order + 20
 
-                            order = orders.orderSell(sell_quantity, sell_price_order + 5, order, client)
+                            order = orders.orderSell(sell_quantity, sell_price_order + 20, order, client)
                             sell_order_placed = True
 
-                            telegramSend('sell_placing', {'sell_price': sell_price_order + 5, 'sell_quantity': sell_quantity})
+                            telegramSend('sell_placing', {'sell_price': sell_price_order + 20, 'sell_quantity': sell_quantity})
                     else:
                         if orders.cancelOrder(client, order['orderId']):
                             check_buy_order_counter = 0
@@ -103,11 +104,11 @@ def handle_message(msg):
             else:
                 if check_sell_order_counter < 300 and check_sell_order_flag:
                     check_sell_order_counter = check_sell_order_counter + 1
-                    if btc_price <= sell_active_price - 1250 and not is_stop:
+                    if btc_price <= sell_active_price - 100 and not is_stop:
                         check_sell_order_counter = 0
                         if orders.cancelOrder(client, order['orderId']):
                             order = orders.orderSell(sell_quantity, btc_price, order, client)
-                            when_stop_price = btc_price - 5
+                            when_stop_price = btc_price - 20
                             is_stop = True
                             stop_placing = True
 
@@ -120,12 +121,12 @@ def handle_message(msg):
                             check_sell_order_counter = 0
 
                             if is_stop:
-                                 profit = round((buy_balance / sell_price_order) * (when_stop_price + 5) - buy_balance, 2)
+                                 profit = round((buy_balance / sell_price_order) * (when_stop_price + 20) - buy_balance, 2)
                             else:
-                                profit = round((buy_balance / sell_price_order) * (sell_price_order + 5) - buy_balance, 2)
+                                profit = round((buy_balance / sell_price_order) * (sell_price_order + 20) - buy_balance, 2)
                                 
                             balance = balance + round(buy_balance + profit, 2)
-                            balance_change = round(balance * 91 - initial_balance * 91, 2)
+                            balance_change = round(balance * 94 - initial_balance * 94, 2)
 
                             if is_stop:
                                 is_stop = False
