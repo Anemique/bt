@@ -58,6 +58,8 @@ def handle_message(msg):
     else:
         btc_price = float(msg['c'])
         if levels:
+            if last_sell == 30000:
+                last_sell = btc_price + 10
             rsi_counter -= 1
             if rsi_counter == 0:
                 rsi = technicals.rsi(creds.symbolRsi)
