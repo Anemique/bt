@@ -50,7 +50,7 @@ def on_message(ws, message):
 
 def handle_message(msg):
     global sell_order_placed, order, buying_price, buy_order_placed, bought, levels, close, high, low, check_sell_order_counter, check_sell_order_flag, last_sell
-    global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter
+    global closes, highs, lows, support, resistance, sell_price, sup_counter, buy_balance, balance, sell_quantity, sell_price_order, check_buy_order_counter, last_sell_counter
     global initial_balance, profit, balance_change, is_side, is_side_counter, rsi, rsi_counter, prev_price, sell_active_price, is_stop, stop_placing, when_stop_price
 
     if msg['e'] == 'error':
@@ -58,6 +58,9 @@ def handle_message(msg):
     else:
         btc_price = float(msg['c'])
         if levels:
+            if last_sell_counter >= 600 and not buy_order_placed:
+                last_sell = 30000
+                last_sell_counter = 0
             if last_sell == 30000:
                 last_sell = btc_price + 10
             rsi_counter -= 1
@@ -80,6 +83,8 @@ def handle_message(msg):
                         buy_order_placed = True
 
                         telegramSend('buy_placing', {'sell_price': sell_price_order, 'sell_quantity': sell_quantity, 'buy_balance' : buy_balance})
+                    else:
+                        last_sell_counter = last_sell_counter + 1
                 else:
                     if check_buy_order_counter < 600:
                         check_buy_order_counter = check_buy_order_counter + 1
@@ -99,6 +104,7 @@ def handle_message(msg):
                             telegramSend('sell_placing', {'sell_price': sell_price_order + 20, 'sell_quantity': sell_quantity})
                     else:
                         if orders.cancelOrder(client, order['orderId']):
+                            last_sell = 30000
                             check_buy_order_counter = 0
                             balance = round(balance + buy_balance, 2)
                             buy_order_placed = False

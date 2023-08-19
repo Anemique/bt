@@ -11,6 +11,7 @@ sell_price_order = 31000
 sell_active_price = 30000
 when_stop_price = 30000
 last_sell = 30000
+last_sell_counter = 0
 is_stop = False
 stop_placing = False
 
