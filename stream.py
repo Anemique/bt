@@ -74,7 +74,7 @@ def handle_message(msg):
             if not bought:
                 if not buy_order_placed:
                     if btc_price <= last_sell - 10 and btc_price <= sell_price and btc_price > support + 1 and btc_price < resistance and is_side and rsi and prev_price < btc_price:
-                        sell_price_order = btc_price
+                        sell_price_order = btc_price - 20
                         sell_quantity = 0.01500
                         buy_balance = sell_quantity * sell_price_order
                         balance = round(balance - buy_balance, 2)
